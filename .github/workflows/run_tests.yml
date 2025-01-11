@@ -14,32 +14,40 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: [3.9, 3.10, 3.11, 3.12, 3.13]
+
+    timeout-minutes: 30
 
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      # Step 3: Install Poetry and dependencies
-      - name: Install Poetry and dependencies
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
-          poetry install --no-interaction --no-root --with dev
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
-      # Step 4: Run tests and calculate coverage
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --with dev
+
       - name: Run tests and calculate coverage
         id: coverage
         run: |
           mkdir -p .github/badges
-          poetry run pytest --cov=cogito > coverage.txt
+          poetry run pytest --cov=cogito tests/ > coverage.txt
           COVERAGE=$(grep -Po '(?<=TOTAL\s+)\d+(?=%)' coverage.txt || echo 0)
           echo "Coverage is $COVERAGE%"
           COLOR="red"
@@ -57,9 +65,8 @@ jobs:
         env:
           CI: true
 
-      # Step 5: Commit badges (only for the default Python version)
       - name: Commit coverage badge
-        if: matrix.python-version == '3.11'  # Choose one version to update the main badge
+        if: matrix.python-version == '3.11'
         run: |
           git config --local user.name "github-actions"
           git config --local user.email "actions@github.com"
