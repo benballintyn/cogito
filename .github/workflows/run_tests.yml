@@ -46,6 +46,8 @@ jobs:
       - name: Run tests and calculate coverage
         id: coverage
         run: |
+          set -e
+          set -x
           mkdir -p .github/badges
           poetry run pytest --cov=cogito tests/ > coverage.txt
           COVERAGE=$(grep -Po '(?<=TOTAL\s+)\d+(?=%)' coverage.txt || echo 0)
