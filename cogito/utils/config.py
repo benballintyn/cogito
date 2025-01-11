@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from loguru import logger
 
+
 def load_envs(package_dir: str) -> None:
     """
     Use dotenv to load environment variables from multiple .env files.
@@ -22,15 +23,10 @@ def load_envs(package_dir: str) -> None:
     )
 
     if load_base and load_environment:
-        logger.info(
-            f"Loaded environment variables from .env and .env.{environment}"
-        )
+        logger.info(f"Loaded environment variables from .env and .env.{environment}")
     elif load_base:
         logger.info("Loaded environment variables from .env")
     elif load_environment:
-        logger.info(
-            f"Loaded environment variables from .env.{environment} only"
-        )
+        logger.info(f"Loaded environment variables from .env.{environment} only")
     else:
         logger.warning("No environment variables loaded")
-    

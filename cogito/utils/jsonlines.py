@@ -3,8 +3,9 @@ Utilities and classes for working with jsonlines files.
 """
 from dataclasses import dataclass
 from pathlib import Path
-import jsonlines
 from typing import Generator
+
+import jsonlines
 
 
 def read_jsonlines(file_path: Path | str) -> Generator[dict, None, None]:
@@ -13,7 +14,7 @@ def read_jsonlines(file_path: Path | str) -> Generator[dict, None, None]:
 
     Args:
         file_path (Path | str): The path to the jsonlines file.
-    
+
     Yields:
         dict: The contents of each line in the jsonlines file.
     """
@@ -59,6 +60,7 @@ class JsonlinesFile:
     Attributes:
         file_path (Path): The path to the jsonlines file.
     """
+
     file_path: Path
 
     def read(self):
