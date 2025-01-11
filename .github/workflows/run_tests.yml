@@ -1,15 +1,20 @@
-name: Run Tests and Update Coverage Badge
+name: Test and Update Coverage Badge
 
 on:
-    pull_request:
-      types:
-        - opened
-        - synchronize
-  
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11, 3.12, 3.13]  # Specify the Python versions to test
 
     steps:
       # Step 1: Checkout the code
@@ -20,7 +25,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9" # Adjust to your Python version
+          python-version: ${{ matrix.python-version }}
 
       # Step 3: Install Poetry and dependencies
       - name: Install Poetry and dependencies
@@ -29,17 +34,14 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           poetry install --no-interaction --no-root --with dev
 
-      # Step 4: Run tests and parse coverage
+      # Step 4: Run tests and calculate coverage
       - name: Run tests and calculate coverage
         id: coverage
         run: |
           mkdir -p .github/badges
-          # Run tests with coverage
           poetry run pytest --cov=your_project > coverage.txt
-          # Extract the TOTAL coverage percentage
-          COVERAGE=$(grep -Po '(?<=TOTAL\s+)\d+(?=%)' coverage.txt)
+          COVERAGE=$(grep -Po '(?<=TOTAL\s+)\d+(?=%)' coverage.txt || echo 0)
           echo "Coverage is $COVERAGE%"
-          # Create an SVG badge
           COLOR="red"
           if [ $COVERAGE -ge 90 ]; then
             COLOR="green"
@@ -51,17 +53,18 @@ jobs:
             <rect x='49' width='49' height='20' fill='$COLOR'/>
             <text x='24.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>coverage</text>
             <text x='73.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>$COVERAGE%</text>
-          </svg>" > .github/badges/coverage.svg
+          </svg>" > .github/badges/coverage-${{ matrix.python-version }}.svg
         env:
           CI: true
 
-      # Step 5: Commit and push badge
+      # Step 5: Commit badges (only for the default Python version)
       - name: Commit coverage badge
+        if: matrix.python-version == '3.11'  # Choose one version to update the main badge
         run: |
           git config --local user.name "github-actions"
           git config --local user.email "actions@github.com"
-          git add .github/badges/coverage.svg
-          git commit -m "Update coverage badge"
+          git add .github/badges/coverage-${{ matrix.python-version }}.svg
+          git commit -m "Update coverage badge for Python ${{ matrix.python-version }}"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
