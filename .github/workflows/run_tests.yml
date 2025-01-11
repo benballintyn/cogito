@@ -39,7 +39,7 @@ jobs:
         id: coverage
         run: |
           mkdir -p .github/badges
-          poetry run pytest --cov=your_project > coverage.txt
+          poetry run pytest --cov=cogito > coverage.txt
           COVERAGE=$(grep -Po '(?<=TOTAL\s+)\d+(?=%)' coverage.txt || echo 0)
           echo "Coverage is $COVERAGE%"
           COLOR="red"
