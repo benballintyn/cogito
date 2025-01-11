@@ -49,7 +49,7 @@ jobs:
           set -e
           set -x
           mkdir -p .github/badges
-          poetry run pytest --cov=cogito tests/ > coverage.txt
+          poetry run pytest --cov=cogito tests/ -v > coverage.txt
           COVERAGE=$(grep -Po '(?<=TOTAL\s+)\d+(?=%)' coverage.txt || echo 0)
           echo "Coverage is $COVERAGE%"
           COLOR="red"
