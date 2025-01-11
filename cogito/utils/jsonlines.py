@@ -63,14 +63,24 @@ class JsonlinesFile:
 
     file_path: Path
 
-    def read(self):
+    def read(self) -> Generator[dict, None, None]:
         """
         Read a jsonlines file line by line and yield the contents of each line.
+
+        Args:
+            file_path (Path | str): The path to the jsonlines file.
 
         Yields:
             dict: The contents of each line in the jsonlines file.
         """
-        read_jsonlines(self.file_path)
+        try:
+            with jsonlines.open(self.file_path, "r") as reader:
+                for line in reader:
+                    yield line
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(f"File not found: {self.file_path}") from exc
+        except jsonlines.Error as exc:
+            raise jsonlines.Error(f"Error reading file: {self.file_path}") from exc
 
     def write(self, data: list[dict]) -> None:
         """
