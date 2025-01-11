@@ -1,0 +1,67 @@
+name: Run Tests and Update Coverage Badge
+
+on:
+    pull_request:
+      types:
+        - opened
+        - synchronize
+  
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9" # Adjust to your Python version
+
+      # Step 3: Install Poetry and dependencies
+      - name: Install Poetry and dependencies
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+          poetry install --no-interaction --no-root --with dev
+
+      # Step 4: Run tests and parse coverage
+      - name: Run tests and calculate coverage
+        id: coverage
+        run: |
+          mkdir -p .github/badges
+          # Run tests with coverage
+          poetry run pytest --cov=your_project > coverage.txt
+          # Extract the TOTAL coverage percentage
+          COVERAGE=$(grep -Po '(?<=TOTAL\s+)\d+(?=%)' coverage.txt)
+          echo "Coverage is $COVERAGE%"
+          # Create an SVG badge
+          COLOR="red"
+          if [ $COVERAGE -ge 90 ]; then
+            COLOR="green"
+          elif [ $COVERAGE -ge 75 ]; then
+            COLOR="yellow"
+          fi
+          echo "<svg xmlns='http://www.w3.org/2000/svg' width='98' height='20'>
+            <rect width='49' height='20' fill='#555'/>
+            <rect x='49' width='49' height='20' fill='$COLOR'/>
+            <text x='24.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>coverage</text>
+            <text x='73.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>$COVERAGE%</text>
+          </svg>" > .github/badges/coverage.svg
+        env:
+          CI: true
+
+      # Step 5: Commit and push badge
+      - name: Commit coverage badge
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "actions@github.com"
+          git add .github/badges/coverage.svg
+          git commit -m "Update coverage badge"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
