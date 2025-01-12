@@ -16,6 +16,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch the full history to ensure branch checkout works
+      
+      - name: Ensure Correct Branch
+        run: |
+          git fetch origin ${{ github.head_ref }}:${{ github.head_ref }}
+          git checkout ${{ github.head_ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
