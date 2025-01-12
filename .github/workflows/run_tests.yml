@@ -39,3 +39,32 @@ jobs:
           poetry run pytest --cov=cogito tests/ --cov-report=xml --cov-report=term > coverage.txt
         env:
           CI: true
+      
+      - name: Generate Coverage Badge
+        id: generate_badge
+        run: |
+          COVERAGE=$(grep -Po '(?<=line-rate=\")\d+(\.\d+)?' coverage.xml | awk '{print int($1 * 100)}')
+          echo "Coverage: $COVERAGE%"
+          COLOR="red"
+          if [ $COVERAGE -ge 90 ]; then
+            COLOR="green"
+          elif [ $COVERAGE -ge 75 ]; then
+            COLOR="yellow"
+          fi
+          echo "<svg xmlns='http://www.w3.org/2000/svg' width='98' height='20'>
+            <rect width='49' height='20' fill='#555'/>
+            <rect x='49' width='49' height='20' fill='$COLOR'/>
+            <text x='24.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>coverage</text>
+            <text x='73.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>$COVERAGE%</text>
+          </svg>" > coverage-badge.svg
+      
+      - name: Commit Coverage Badge
+        if: matrix.python-version == '3.11'
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "actions@github.com"
+          git add coverage-badge.svg
+          git commit -m "Update coverage badge: ${{ steps.generate_badge.outputs.coverage }}%"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
