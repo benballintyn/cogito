@@ -36,6 +36,6 @@ jobs:
         run: |
           set -e
           set -x
-          poetry run pytest -v
+          poetry run pytest --cov=cogito tests/ --cov-report=xml --cov-report=term > coverage.txt
         env:
           CI: true
