@@ -3,3 +3,4 @@
 ![Coverage](https://codecov.io/gh/benballintyn/cogito/branch/main/graph/badge.svg)
 ![License](https://img.shields.io/github/license/benballintyn/cogito)
 
+Utilities
