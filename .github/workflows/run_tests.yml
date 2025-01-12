@@ -72,6 +72,6 @@ jobs:
           git config --local user.email "actions@github.com"
           git add coverage-badge.svg
           git commit -m "Update coverage badge: ${{ steps.generate_badge.outputs.coverage }}%"
-          git push
+          git push --set-upstream origin ${{ github.head_ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
