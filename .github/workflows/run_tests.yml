@@ -76,8 +76,16 @@ jobs:
         run: |
           git config --local user.name "github-actions"
           git config --local user.email "actions@github.com"
-          git add coverage-badge.svg
-          git commit -m "Update coverage badge: ${{ steps.generate_badge.outputs.coverage }}%"
-          git push --set-upstream origin ${{ github.head_ref }}
+          
+          # Stage only the badge file
+          git add coverage-badge.svg || echo "No changes to stage"
+          
+          # Check if there are changes before committing
+          if ! git diff --cached --quiet; then
+            git commit -m "Update coverage badge"
+            git push --set-upstream origin ${{ github.head_ref }}
+          else
+            echo "No changes to commit"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
