@@ -58,13 +58,13 @@ jobs:
           elif [ $COVERAGE -ge 75 ]; then
             COLOR="yellow"
           fi
-          echo "<svg xmlns='http://www.w3.org/2000/svg' width='98' height='20'>
-            <rect width='49' height='20' fill='#555'/>
-            <rect x='49' width='49' height='20' fill='$COLOR'/>
-            <text x='24.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>coverage</text>
-            <text x='73.5' y='14' font-size='11' fill='#fff' text-anchor='middle'>$COVERAGE%</text>
-          </svg>" > coverage-badge.svg
-      
+          echo "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' role='img' aria-label='coverage: $COVERAGE%'>
+            <title>coverage: $COVERAGE%</title>
+            <rect width='60' height='20' fill='#555'/>
+            <rect x='60' width='60' height='20' fill='$COLOR'/>
+            <text x='30' y='14' fill='#fff' font-family='Verdana, Geneva, DejaVu Sans, sans-serif' font-size='11' text-anchor='middle'>coverage</text>
+            <text x='90' y='14' fill='#fff' font-family='Verdana, Geneva, DejaVu Sans, sans-serif' font-size='11' text-anchor='middle'>$COVERAGE%</text>
+          </svg>" > coverage-badge.svg      
       - name: Commit Coverage Badge
         if: matrix.python-version == '3.11'
         run: |
