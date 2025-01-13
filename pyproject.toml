@@ -6,7 +6,22 @@ authors = ["benballintyn <bbal@brandeis.edu>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.10,<3.14"
+python-dotenv = "^1.0.1"
+loguru = "^0.7.2"
+optuna = "^4.1.0"
+jsonlines = "^4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.23.0"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+coverage = "^7.6.10"
+codecov = "^2.1.13"
+
+[tool.pytest.ini_options]
+addopts = "--cov=cogito --cov-report=xml --cov-report=term-missing"
+
 
 
 [build-system]
