@@ -2,7 +2,7 @@
 name = "cogito"
 version = "0.1.0"
 description = ""
-authors = ["benballintyn <bbal@brandeis.edu>"]
+authors = ["benballintyn <benballintyn@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -21,8 +21,6 @@ codecov = "^2.1.13"
 
 [tool.pytest.ini_options]
 addopts = "--cov=cogito --cov-report=xml --cov-report=term-missing"
-
-
 
 [build-system]
 requires = ["poetry-core"]
