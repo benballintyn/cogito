@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: my-dockerhub-username/cogito:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/cogito:latest
           labels: |
             org.opencontainers.image.source=https://github.com/benballintyn/cogito
           outputs: type=docker
