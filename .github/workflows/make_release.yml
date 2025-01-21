@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  version: "v0.1.1"  # Update this variable to set the version
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -21,8 +24,8 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          tag_name: v1.0.0 # Update this manually before merging dev to main
-          release_name: Release v1.0.0
+          tag_name: ${{ env.version }}
+          release_name: Release ${{ env.version }}
           body_path: ./release_notes.md
           draft: false
           prerelease: false
