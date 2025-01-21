@@ -1,9 +1,13 @@
 name: Run Pytest
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
+  workflow_dispatch: # Optional: Allows manual triggering from the GitHub UI
 
 jobs:
   test:
