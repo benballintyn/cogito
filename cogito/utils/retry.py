@@ -8,7 +8,7 @@ from loguru import logger
 
 def async_retry(
     max_retries: int = 3,
-    backoff_factor: float = 1.0,
+    backoff_factor: float = 0.1,
     max_delay: float = 10.0,
     exceptions: Tuple[Type[BaseException], ...] = (Exception,),
     jitter: bool = True,
