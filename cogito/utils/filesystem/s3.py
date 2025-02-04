@@ -265,3 +265,42 @@ class S3FileSystem(FileSystem):
         except ClientError as e:
             logger.error(f"Failed to write Parquet file to S3: {e}")
             raise
+
+    def read_text(self, path: str) -> str:
+        """
+        Read a text file from S3.
+
+        Args:
+            path (str): Path to the text file in S3.
+
+        Returns:
+            str: Content of the text file.
+
+        Raises:
+            ClientError: If the file cannot be retrieved from S3.
+        """
+        try:
+            obj = self.s3.get_object(Bucket=self.bucket_name, Key=path)
+            return obj["Body"].read().decode("utf-8")
+        except ClientError as e:
+            logger.error(f"Failed to read text file from S3: {e}")
+            raise
+
+    def write_text(self, path: str, data: str) -> None:
+        """
+        Write data to a text file in S3.
+
+        Args:
+            path (str): Path to the text file in S3.
+            data (str): Text data to be written.
+
+        Raises:
+            ClientError: If the file cannot be uploaded to S3.
+        """
+        try:
+            self.s3.put_object(
+                Bucket=self.bucket_name, Key=path, Body=data.encode("utf-8")
+            )
+        except ClientError as e:
+            logger.error(f"Failed to write text file to S3: {e}")
+            raise
