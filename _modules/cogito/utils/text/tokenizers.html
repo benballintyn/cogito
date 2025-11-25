@@ -1,0 +1,200 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cogito.utils.text.tokenizers &mdash; Cogito 0.1.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=92734c54"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Cogito
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">cogito</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Cogito</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cogito.utils.text.tokenizers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cogito.utils.text.tokenizers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Custom sentence tokenizer to split text into sentences while handling abbreviations and punctuation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="c1"># Extended list of abbreviations</span>
+<span class="n">ABBREVIATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Dr.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mr.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mrs.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ms.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Prof.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Sr.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Jr.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Rev.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Fr.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;St.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e.g.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;i.e.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;etc.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;et al.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vs.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;viz.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ca.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;U.S.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;U.K.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;E.U.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;A.M.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;P.M.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;in.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ft.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lb.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;oz.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cm.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mm.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;km.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kg.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mg.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ml.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hr.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;No.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Inc.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Co.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ltd.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Corp.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Fig.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Eq.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ex.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ch.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Vol.&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Common continuation words</span>
+<span class="n">CONTINUATION_WORDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;and&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;or&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;but&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;if&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;then&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;because&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;while&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;however&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;although&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;though&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="custom_sent_tokenize">
+<a class="viewcode-back" href="../../../../cogito.utils.text.html#cogito.utils.text.tokenizers.custom_sent_tokenize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_sent_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tokenize a string into sentences, handling abbreviations and punctuation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        text (str): The input text to tokenize.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[str]: A list of sentences.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="c1"># Escape abbreviations to prevent splitting on them</span>
+    <span class="k">for</span> <span class="n">abbr</span> <span class="ow">in</span> <span class="n">ABBREVIATIONS</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">abbr</span><span class="p">,</span> <span class="n">abbr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;DOT&gt;&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Split on sentence-ending punctuation, restoring abbreviations</span>
+    <span class="n">raw_sentences</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?&lt;=[.!?])\s+(?=[A-Z])&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="c1"># Restore abbreviations and filter out empty strings or whitespace</span>
+    <span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sentence</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;DOT&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">raw_sentences</span>
+        <span class="k">if</span> <span class="n">sentence</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">sentences</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Ben Ballintyn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

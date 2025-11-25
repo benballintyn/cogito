@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cogito.utils.filesystem.s3 &mdash; Cogito 0.1.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=92734c54"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Cogito
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">cogito</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Cogito</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cogito.utils.filesystem.s3</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cogito.utils.filesystem.s3</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">botocore.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotoCoreError</span><span class="p">,</span> <span class="n">ClientError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystem</span>
+
+
+<div class="viewcode-block" id="S3FileSystem">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">S3FileSystem</span><span class="p">(</span><span class="n">FileSystem</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to interact with AWS S3 using boto3.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">region</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize S3 client.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bucket_name (str): Name of the S3 bucket.</span>
+<span class="sd">            region (Optional[str]): AWS region.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            BotoCoreError: If boto3 encounters an error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span> <span class="o">=</span> <span class="n">bucket_name</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">BotoCoreError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to initialize S3 client: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="S3FileSystem.list_files">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.list_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List files in an S3 bucket under a given prefix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            prefix (str, optional): Prefix to filter files. Defaults to &quot;&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[str]: List of file paths.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the S3 request fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">list_objects_v2</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Key&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Contents&quot;</span><span class="p">,</span> <span class="p">[])]</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to list files in S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.copy_file">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.copy_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">destination</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Copy a file within S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            source (str): Source file path in S3.</span>
+<span class="sd">            destination (str): Destination file path in S3.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the copy operation fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">copy_source</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Bucket&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="s2">&quot;Key&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">copy_source</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to copy file in S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.upload_file">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.upload_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Upload a local file to S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            local_path (str): Path to the local file.</span>
+<span class="sd">            remote_path (str): Destination path in S3.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the upload operation fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to upload file to S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.download_file">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.download_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download a file from S3 to local storage.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            remote_path (str): Path to the file in S3.</span>
+<span class="sd">            local_path (str): Destination path in local storage.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the download operation fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">,</span> <span class="n">local_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download file from S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.delete_file">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.delete_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a file from S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the file in S3.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the delete operation fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">delete_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to delete file from S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+    <span class="c1"># Read and Write Methods</span>
+<div class="viewcode-block" id="S3FileSystem.read_json">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.read_json">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a JSON file from S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the JSON file in S3.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: Parsed JSON data.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be retrieved from S3.</span>
+<span class="sd">            json.JSONDecodeError: If the file is not a valid JSON.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Body&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.write_json">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.write_json">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write data to a JSON file in S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the JSON file in S3.</span>
+<span class="sd">            data (Any): Data to be written.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be uploaded to S3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">Body</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to write JSON file to S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.read_yaml">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.read_yaml">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a YAML file from S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the YAML file in S3.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: Parsed YAML data.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be retrieved from S3.</span>
+<span class="sd">            yaml.YAMLError: If the file is not a valid YAML.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Body&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.write_yaml">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.write_yaml">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write data to a YAML file in S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the YAML file in S3.</span>
+<span class="sd">            data (Any): Data to be written.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be uploaded to S3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span>
+                <span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">Body</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to write YAML file to S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.read_csv">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.read_csv">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a CSV file from S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the CSV file in S3.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Data from the CSV file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be retrieved from S3.</span>
+<span class="sd">            pd.errors.ParserError: If the file cannot be parsed as CSV.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Body&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.write_csv">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.write_csv">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a DataFrame to a CSV file in S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the CSV file in S3.</span>
+<span class="sd">            data (pd.DataFrame): DataFrame to write.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be uploaded to S3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">csv_buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_buffer</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span>
+                <span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">Body</span><span class="o">=</span><span class="n">csv_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to write CSV file to S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.read_parquet">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.read_parquet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a Parquet file from S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the Parquet file in S3.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Data from the Parquet file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be retrieved from S3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Body&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.write_parquet">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.write_parquet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a DataFrame to a Parquet file in S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the Parquet file in S3.</span>
+<span class="sd">            data (pd.DataFrame): DataFrame to write.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be uploaded to S3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parquet_buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">parquet_buffer</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span>
+                <span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">Body</span><span class="o">=</span><span class="n">parquet_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to write Parquet file to S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.read_text">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.read_text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a text file from S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the text file in S3.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Content of the text file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be retrieved from S3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Body&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read text file from S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="S3FileSystem.write_text">
+<a class="viewcode-back" href="../../../../cogito.utils.filesystem.html#cogito.utils.filesystem.s3.S3FileSystem.write_text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write data to a text file in S3.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to the text file in S3.</span>
+<span class="sd">            data (str): Text data to be written.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ClientError: If the file cannot be uploaded to S3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span>
+                <span class="n">Bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">Body</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to write text file to S3: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Ben Ballintyn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

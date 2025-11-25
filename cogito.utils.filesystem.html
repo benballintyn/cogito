@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cogito.utils.filesystem package &mdash; Cogito 0.1.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=92734c54"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cogito.utils.text package" href="cogito.utils.text.html" />
+    <link rel="prev" title="cogito.utils.dbs package" href="cogito.utils.dbs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Cogito
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">cogito</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cogito.html">cogito package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="cogito.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="cogito.utils.html">cogito.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogito.html#module-cogito">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Cogito</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">cogito</a></li>
+          <li class="breadcrumb-item"><a href="cogito.html">cogito package</a></li>
+          <li class="breadcrumb-item"><a href="cogito.utils.html">cogito.utils package</a></li>
+      <li class="breadcrumb-item active">cogito.utils.filesystem package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cogito.utils.filesystem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cogito-utils-filesystem-package">
+<h1>cogito.utils.filesystem package<a class="headerlink" href="#cogito-utils-filesystem-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-cogito.utils.filesystem.s3">
+<span id="cogito-utils-filesystem-s3-module"></span><h2>cogito.utils.filesystem.s3 module<a class="headerlink" href="#module-cogito.utils.filesystem.s3" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cogito.utils.filesystem.s3.</span></span><span class="sig-name descname"><span class="pre">S3FileSystem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FileSystem</span></code></p>
+<p>Class to interact with AWS S3 using boto3.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.copy_file">
+<span class="sig-name descname"><span class="pre">copy_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.copy_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.copy_file" title="Link to this definition"></a></dt>
+<dd><p>Copy a file within S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em>) – Source file path in S3.</p></li>
+<li><p><strong>destination</strong> (<em>str</em>) – Destination file path in S3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the copy operation fails.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.delete_file">
+<span class="sig-name descname"><span class="pre">delete_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.delete_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.delete_file" title="Link to this definition"></a></dt>
+<dd><p>Delete a file from S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the file in S3.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the delete operation fails.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.download_file">
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.download_file" title="Link to this definition"></a></dt>
+<dd><p>Download a file from S3 to local storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remote_path</strong> (<em>str</em>) – Path to the file in S3.</p></li>
+<li><p><strong>local_path</strong> (<em>str</em>) – Destination path in local storage.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the download operation fails.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.list_files">
+<span class="sig-name descname"><span class="pre">list_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.list_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.list_files" title="Link to this definition"></a></dt>
+<dd><p>List files in an S3 bucket under a given prefix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prefix</strong> (<em>str</em><em>, </em><em>optional</em>) – Prefix to filter files. Defaults to “”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of file paths.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the S3 request fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.read_csv">
+<span class="sig-name descname"><span class="pre">read_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.read_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.read_csv" title="Link to this definition"></a></dt>
+<dd><p>Read a CSV file from S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the CSV file in S3.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data from the CSV file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ClientError</strong> – If the file cannot be retrieved from S3.</p></li>
+<li><p><strong>pd.errors.ParserError</strong> – If the file cannot be parsed as CSV.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.read_json">
+<span class="sig-name descname"><span class="pre">read_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.read_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.read_json" title="Link to this definition"></a></dt>
+<dd><p>Read a JSON file from S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the JSON file in S3.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed JSON data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ClientError</strong> – If the file cannot be retrieved from S3.</p></li>
+<li><p><strong>json.JSONDecodeError</strong> – If the file is not a valid JSON.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.read_parquet">
+<span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.read_parquet" title="Link to this definition"></a></dt>
+<dd><p>Read a Parquet file from S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the Parquet file in S3.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data from the Parquet file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the file cannot be retrieved from S3.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.read_text">
+<span class="sig-name descname"><span class="pre">read_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.read_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.read_text" title="Link to this definition"></a></dt>
+<dd><p>Read a text file from S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the text file in S3.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Content of the text file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the file cannot be retrieved from S3.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.read_yaml">
+<span class="sig-name descname"><span class="pre">read_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.read_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.read_yaml" title="Link to this definition"></a></dt>
+<dd><p>Read a YAML file from S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the YAML file in S3.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed YAML data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ClientError</strong> – If the file cannot be retrieved from S3.</p></li>
+<li><p><strong>yaml.YAMLError</strong> – If the file is not a valid YAML.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.upload_file">
+<span class="sig-name descname"><span class="pre">upload_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.upload_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.upload_file" title="Link to this definition"></a></dt>
+<dd><p>Upload a local file to S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>local_path</strong> (<em>str</em>) – Path to the local file.</p></li>
+<li><p><strong>remote_path</strong> (<em>str</em>) – Destination path in S3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the upload operation fails.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.write_csv">
+<span class="sig-name descname"><span class="pre">write_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.write_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.write_csv" title="Link to this definition"></a></dt>
+<dd><p>Write a DataFrame to a CSV file in S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the CSV file in S3.</p></li>
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – DataFrame to write.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the file cannot be uploaded to S3.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.write_json">
+<span class="sig-name descname"><span class="pre">write_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.write_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.write_json" title="Link to this definition"></a></dt>
+<dd><p>Write data to a JSON file in S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the JSON file in S3.</p></li>
+<li><p><strong>data</strong> (<em>Any</em>) – Data to be written.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the file cannot be uploaded to S3.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.write_parquet">
+<span class="sig-name descname"><span class="pre">write_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.write_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.write_parquet" title="Link to this definition"></a></dt>
+<dd><p>Write a DataFrame to a Parquet file in S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the Parquet file in S3.</p></li>
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – DataFrame to write.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the file cannot be uploaded to S3.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.write_text">
+<span class="sig-name descname"><span class="pre">write_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.write_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.write_text" title="Link to this definition"></a></dt>
+<dd><p>Write data to a text file in S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the text file in S3.</p></li>
+<li><p><strong>data</strong> (<em>str</em>) – Text data to be written.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the file cannot be uploaded to S3.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cogito.utils.filesystem.s3.S3FileSystem.write_yaml">
+<span class="sig-name descname"><span class="pre">write_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cogito/utils/filesystem/s3.html#S3FileSystem.write_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cogito.utils.filesystem.s3.S3FileSystem.write_yaml" title="Link to this definition"></a></dt>
+<dd><p>Write data to a YAML file in S3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the YAML file in S3.</p></li>
+<li><p><strong>data</strong> (<em>Any</em>) – Data to be written.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If the file cannot be uploaded to S3.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cogito.utils.filesystem">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cogito.utils.filesystem" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cogito.utils.dbs.html" class="btn btn-neutral float-left" title="cogito.utils.dbs package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cogito.utils.text.html" class="btn btn-neutral float-right" title="cogito.utils.text package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Ben Ballintyn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
