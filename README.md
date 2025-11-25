@@ -1,7 +1,7 @@
 # Cogito
 
 ![Build Status](https://github.com/benballintyn/cogito/actions/workflows/run_tests.yml/badge.svg?branch=main)
-![Coverage](./coverage-badge.svg)
+![Coverage](https://img.shields.io/endpoint?url=https://benballintyn.github.io/cogito/coverage.json)
 ![License](https://img.shields.io/github/license/benballintyn/cogito)
 ![Python Version](https://img.shields.io/pypi/pyversions/cogito)
 

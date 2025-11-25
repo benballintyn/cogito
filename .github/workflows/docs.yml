@@ -34,6 +34,29 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           poetry run sphinx-build -b html docs/ docs/_build
 
+      - name: Generate Coverage Report
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          poetry run pytest --cov=cogito tests/ --cov-report=xml
+
+      - name: Create Coverage JSON
+        run: |
+          # Extract coverage percentage using sed/awk for better compatibility
+          COVERAGE=$(grep "line-rate=" coverage.xml | head -n 1 | sed 's/.*line-rate="\([^"]*\)".*/\1/' | awk '{print int($1 * 100)}')
+          echo "Coverage: $COVERAGE%"
+          
+          # Determine color
+          if [ "$COVERAGE" -ge 90 ]; then
+            COLOR="green"
+          elif [ "$COVERAGE" -ge 75 ]; then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+          
+          # Create JSON for Shields.io endpoint
+          echo "{ \"schemaVersion\": 1, \"label\": \"coverage\", \"message\": \"$COVERAGE%\", \"color\": \"$COLOR\" }" > docs/_build/coverage.json
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
