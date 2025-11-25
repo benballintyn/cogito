@@ -1,12 +1,9 @@
-name: Release on Merge to Main
+name: Release on Tag
 
 on:
   push:
-    branches:
-      - main
-
-env:
-  version: "v0.1.2"  # Update this variable to set the version
+    tags:
+      - 'v*'
 
 jobs:
   release:
@@ -14,18 +11,29 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Generate Release Notes
         id: release_notes
         run: |
           echo "## Changes" > release_notes.md
-          git log $(git describe --tags --abbrev=0)..HEAD --oneline >> release_notes.md
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            # If no previous tag, log from the beginning
+            git log --oneline >> release_notes.md
+          else
+            # Log from previous tag to current HEAD
+            git log ${PREV_TAG}..HEAD --oneline >> release_notes.md
+          fi
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ env.version }}
-          release_name: Release ${{ env.version }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           body_path: ./release_notes.md
           draft: false
           prerelease: false
